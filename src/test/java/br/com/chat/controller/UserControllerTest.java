@@ -41,10 +41,10 @@ public class UserControllerTest {
     }
 
     @Test
-    public void deveSalvar() throws Exception {
+    public void mustSave() throws Exception {
         User user = User.builder().id(101).build();
 
-        mockMvc.perform(post("/api/user")
+        mockMvc.perform(post("/user")
                 .content(jacksonConverter.toJson(user))
                 .contentType(Request.getContentType()))
                 .andExpect(status().isOk());

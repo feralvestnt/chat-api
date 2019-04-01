@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -21,9 +20,12 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.transaction.Transactional;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringRunner.class)
@@ -41,7 +43,7 @@ public class ChatControllerTest {
     private WebApplicationContext webApplicationContext;
 
     @Autowired
-    private ChatRepository repository;
+    private ChatRepository chatRepository;
 
     private MockMvc mockMvc;
 
@@ -51,17 +53,30 @@ public class ChatControllerTest {
     }
 
     @Test
+    public void mustReturnAll() throws Exception {
+        mockMvc.perform(get("/chat"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(Request.getContentType()))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(100)))
+                .andExpect(jsonPath("$[0].text", is("TEST MESSAGE")))
+                .andExpect(jsonPath("$[0].user.name", is("Fernando Henrique Alves")))
+                .andExpect(jsonPath("$[0].user.id", is(100)));
+
+    }
+
+    @Test
     public void deveSalvar() throws Exception {
         User user = User.builder().id(100).build();
-        Chat chat = Chat.builder().id(100).text("First Message").user(user).build();
+        Chat chat = Chat.builder().id(null).text("First Message").user(user).build();
 
-        mockMvc.perform(post("/api/chat")
+        mockMvc.perform(post("/chat")
                 .content(jacksonConverter.toJson(chat))
                 .contentType(Request.getContentType()))
                 .andExpect(status().isOk());
 
-        List<Chat> cartoes = (List<Chat>) repository.findAll();
+        List<Chat> cartoes = (List<Chat>) chatRepository.findAll();
 
-        assertEquals(1, cartoes.size());
+        assertEquals(2, cartoes.size());
     }
 }

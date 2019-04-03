@@ -26,10 +26,7 @@ public class WebSocketController {
     @SendTo("/queue/reply")
     public List<Chat> reply(@Payload Chat chat) {
         chatService.save(chat);
-
-        System.out.println(chat);
-        List<Chat> chatList = chatService.getAll();
-        return chatList;
+        return chatService.getAll();
     }
 
     @MessageExceptionHandler

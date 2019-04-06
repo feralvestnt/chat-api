@@ -1,4 +1,4 @@
-package br.com.chat.config;
+package br.com.chat.controller;
 
 import br.com.chat.model.Chat;
 import br.com.chat.service.ChatService;
